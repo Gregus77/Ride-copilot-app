@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Ride Copilot</string>
+    <string name="accessibility_service_description">Permet a Ride Copilot de detecter les propositions de course dans Uber Driver et Bolt Driver pour calculer le temps de trajet reel et la rentabilite avant acceptation.</string>
+</resources>
