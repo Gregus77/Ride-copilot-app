@@ -13,6 +13,12 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "0.1.0"
+
+        // Injecte une cle par defaut au build (secret GitHub Actions GOOGLE_MAPS_API_KEY),
+        // pour eviter d'avoir a la saisir manuellement dans l'app. Vide si non fournie :
+        // l'app retombe alors sur la saisie manuelle dans les reglages.
+        val mapsApiKey = System.getenv("GOOGLE_MAPS_API_KEY") ?: ""
+        buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"$mapsApiKey\"")
     }
 
     buildTypes {
@@ -33,6 +39,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {

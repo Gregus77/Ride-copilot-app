@@ -26,6 +26,8 @@ jobs:
           gradle-version: "8.7"
 
       - name: Build debug APK
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         run: gradle assembleDebug
 
       - name: Upload APK

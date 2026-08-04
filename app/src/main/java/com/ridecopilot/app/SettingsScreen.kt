@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ridecopilot.app.data.SettingsRepository
 import com.ridecopilot.app.domain.AppSettings
+import com.ridecopilot.app.domain.VehicleType
 import kotlinx.coroutines.launch
 
 @Composable
@@ -45,6 +47,12 @@ fun SettingsScreen(
     }
     var fuelPriceField by remember(settings.fuelPricePerLiter) {
         mutableStateOf(settings.fuelPricePerLiter.toString())
+    }
+    var electricConsumptionField by remember(settings.electricConsumptionKwh100km) {
+        mutableStateOf(settings.electricConsumptionKwh100km.toString())
+    }
+    var electricPriceField by remember(settings.electricPricePerKwh) {
+        mutableStateOf(settings.electricPricePerKwh.toString())
     }
 
     Column(
@@ -96,13 +104,18 @@ fun SettingsScreen(
 
         Text("2. Cle API Google Maps", style = MaterialTheme.typography.titleMedium)
         Text(
-            "Necessite les API Directions et Geocoding activees sur console.cloud.google.com",
+            if (settings.googleMapsApiKey.isNotBlank()) {
+                "Cle deja configuree (via le secret GitHub GOOGLE_MAPS_API_KEY ou saisie ci-dessous)."
+            } else {
+                "Aucune cle configuree. Ajoute le secret GOOGLE_MAPS_API_KEY dans le repo GitHub pour " +
+                    "qu'elle soit injectee automatiquement au build, ou saisis-la ici (API Directions + Geocoding requises)."
+            },
             style = MaterialTheme.typography.bodySmall
         )
         OutlinedTextField(
             value = apiKeyField,
             onValueChange = { apiKeyField = it },
-            label = { Text("Cle API") },
+            label = { Text("Cle API (override manuel, optionnel)") },
             modifier = Modifier.fillMaxWidth()
         )
         Button(onClick = { scope.launch { settingsRepository.updateApiKey(apiKeyField) } }) {
@@ -111,32 +124,84 @@ fun SettingsScreen(
 
         Divider()
 
-        Text("3. Cout du vehicule", style = MaterialTheme.typography.titleMedium)
-        OutlinedTextField(
-            value = fuelConsumptionField,
-            onValueChange = { fuelConsumptionField = it },
-            label = { Text("Consommation (L/100km)") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = fuelPriceField,
-            onValueChange = { fuelPriceField = it },
-            label = { Text("Prix carburant (€/L)") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Button(onClick = {
-            scope.launch {
-                settingsRepository.updateFuelConsumption(
-                    fuelConsumptionField.toDoubleOrNull() ?: settings.fuelConsumptionL100km
-                )
-                settingsRepository.updateFuelPrice(
-                    fuelPriceField.toDoubleOrNull() ?: settings.fuelPricePerLiter
-                )
+        Text("3. Vehicule et cout de l'energie", style = MaterialTheme.typography.titleMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = { scope.launch { settingsRepository.updateVehicleType(VehicleType.THERMAL) } },
+                colors = if (settings.vehicleType == VehicleType.THERMAL) {
+                    ButtonDefaults.buttonColors()
+                } else {
+                    ButtonDefaults.outlinedButtonColors()
+                }
+            ) {
+                Text("Thermique")
             }
-        }) {
-            Text("Enregistrer les couts")
+            Button(
+                onClick = { scope.launch { settingsRepository.updateVehicleType(VehicleType.ELECTRIC) } },
+                colors = if (settings.vehicleType == VehicleType.ELECTRIC) {
+                    ButtonDefaults.buttonColors()
+                } else {
+                    ButtonDefaults.outlinedButtonColors()
+                }
+            ) {
+                Text("Electrique")
+            }
+        }
+
+        if (settings.vehicleType == VehicleType.THERMAL) {
+            OutlinedTextField(
+                value = fuelConsumptionField,
+                onValueChange = { fuelConsumptionField = it },
+                label = { Text("Consommation (L/100km)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = fuelPriceField,
+                onValueChange = { fuelPriceField = it },
+                label = { Text("Prix carburant (€/L)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Button(onClick = {
+                scope.launch {
+                    settingsRepository.updateFuelConsumption(
+                        fuelConsumptionField.toDoubleOrNull() ?: settings.fuelConsumptionL100km
+                    )
+                    settingsRepository.updateFuelPrice(
+                        fuelPriceField.toDoubleOrNull() ?: settings.fuelPricePerLiter
+                    )
+                }
+            }) {
+                Text("Enregistrer les couts")
+            }
+        } else {
+            OutlinedTextField(
+                value = electricConsumptionField,
+                onValueChange = { electricConsumptionField = it },
+                label = { Text("Consommation (kWh/100km)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = electricPriceField,
+                onValueChange = { electricPriceField = it },
+                label = { Text("Prix electricite (€/kWh)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Button(onClick = {
+                scope.launch {
+                    settingsRepository.updateElectricConsumption(
+                        electricConsumptionField.toDoubleOrNull() ?: settings.electricConsumptionKwh100km
+                    )
+                    settingsRepository.updateElectricPrice(
+                        electricPriceField.toDoubleOrNull() ?: settings.electricPricePerKwh
+                    )
+                }
+            }) {
+                Text("Enregistrer les couts")
+            }
         }
 
         Divider()

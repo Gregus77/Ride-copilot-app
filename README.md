@@ -12,29 +12,36 @@ Les apps de VTC annoncent parfois un temps optimiste (ex: 30 min) alors que le t
 2. **`RideOfferParser`** : extrait ces informations par regex à partir du texte affiché à l'écran (approche heuristique, voir limites ci-dessous).
 3. **`OverlayService`** : affiche une bulle flottante (`WindowManager` + Jetpack Compose) au-dessus de Uber/Bolt.
 4. **`DirectionsApi`** : géocode les adresses détectées et interroge l'API Google Directions avec `departure_time=now` pour obtenir le temps de trajet réel, en routant `position actuelle du chauffeur -> point de prise en charge -> destination` (donc y compris le temps pour aller chercher le client, pas seulement le trajet client).
-5. **`ProfitabilityCalculator`** : calcule le gain net (prix course - coût carburant) et le taux horaire (€/h), classé Bon / Correct / Faible.
+5. **`ProfitabilityCalculator`** : calcule le gain net (prix course - coût de l'énergie) et le taux horaire (€/h), classé Bon / Correct / Faible. Fonctionne pour un véhicule thermique (L/100km + €/L) ou électrique (kWh/100km + €/kWh).
 
 ## Mise en place
 
 ### 1. Prérequis
-- Android Studio (Koala ou plus récent)
 - Un smartphone Android (API 26+) avec Uber Driver et/ou Bolt Driver installés
 - Une clé API Google Cloud avec les APIs suivantes activées :
   - **Directions API**
   - **Geocoding API**
 
-### 2. Ouvrir le projet
-Ouvrir ce dossier dans Android Studio. Le wrapper Gradle n'est pas commité (pas de binaire dans ce repo) — au premier "Sync", Android Studio propose de le générer automatiquement. Sinon : `gradle wrapper --gradle-version 8.7` si Gradle est installé en local.
+### 2. Build via GitHub Actions (recommandé, pas besoin d'Android Studio)
+Chaque push sur `main` compile automatiquement un APK debug téléchargeable dans l'onglet **Actions** du repo (artifact `ride-copilot-debug`).
 
-### 3. Build & installation
-Lancer le module `app` sur un appareil physique (l'overlay et le service d'accessibilité ne sont pas testables sur un simple émulateur sans Play Services complets).
+Pour que la clé API Google Maps soit **injectée automatiquement** au build (pas besoin de la saisir dans l'app) :
+1. GitHub → ce repo → **Settings → Secrets and variables → Actions → New repository secret**
+2. Nom : `GOOGLE_MAPS_API_KEY`, valeur : ta clé API Google Cloud
+3. Au prochain push, le build embarque cette clé (`BuildConfig.GOOGLE_MAPS_API_KEY`) — l'écran de réglages affichera "Cle deja configuree" et aucune saisie manuelle n'est nécessaire. Une saisie manuelle dans l'app reste possible et prend toujours le dessus si renseignée.
 
-### 4. Configuration dans l'app
+### 3. Build local (alternative)
+Ouvrir ce dossier dans Android Studio (Koala ou plus récent). Le wrapper Gradle n'est pas commité — au premier "Sync", Android Studio propose de le générer automatiquement. Sans le secret CI, définir `GOOGLE_MAPS_API_KEY` comme variable d'environnement avant de builder, sinon saisir la clé manuellement dans l'app.
+
+### 4. Installation
+Installer l'APK sur un appareil physique (l'overlay et le service d'accessibilité ne sont pas testables sur un simple émulateur sans Play Services complets).
+
+### 5. Configuration dans l'app
 1. Ouvrir Ride Copilot
 2. Autoriser l'affichage par-dessus les autres apps
 3. Activer le service d'accessibilité "Ride Copilot" dans les réglages Android
-4. Renseigner la clé API Google Maps
-5. Renseigner la consommation du véhicule (L/100km) et le prix du carburant (€/L)
+4. Si la clé API n'est pas déjà configurée automatiquement, la renseigner
+5. Choisir le type de véhicule (Thermique ou Électrique) et renseigner le coût correspondant
 6. Ouvrir Uber Driver ou Bolt Driver : la bulle apparaît automatiquement dès qu'une course est proposée
 
 Le toggle **"Surveillance active"** en haut de l'écran permet de mettre en pause la détection des courses (par exemple pendant une pause) sans avoir à retirer l'autorisation d'accessibilité dans les réglages Android — pratique car cette autorisation redemande souvent une confirmation manuelle une fois retirée.

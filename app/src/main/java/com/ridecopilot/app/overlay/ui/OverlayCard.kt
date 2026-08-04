@@ -152,9 +152,9 @@ fun OverlayCard(stateFlow: StateFlow<OverlayUiState>, onDismiss: () -> Unit) {
                             fontSize = 20.sp
                         )
                         Text(
-                            "Net estime : %.2f € (carburant %.2f €)".format(
+                            "Net estime : %.2f € (energie %.2f €)".format(
                                 profit.netEarningsEuros,
-                                profit.fuelCostEuros
+                                profit.energyCostEuros
                             ),
                             color = Color(0xFFB0BEC5),
                             fontSize = 11.sp

@@ -8,18 +8,23 @@ object ProfitabilityCalculator {
         totalDistanceKm: Double,
         settings: AppSettings
     ): ProfitabilityResult {
-        val fuelCost = totalDistanceKm * (settings.fuelConsumptionL100km / 100.0) * settings.fuelPricePerLiter
+        val energyCost = when (settings.vehicleType) {
+            VehicleType.ELECTRIC ->
+                totalDistanceKm * (settings.electricConsumptionKwh100km / 100.0) * settings.electricPricePerKwh
+            VehicleType.THERMAL ->
+                totalDistanceKm * (settings.fuelConsumptionL100km / 100.0) * settings.fuelPricePerLiter
+        }
 
         if (fareEuros == null || totalDurationMinutes <= 0.0) {
             return ProfitabilityResult(
                 netEarningsEuros = null,
                 hourlyRateEuros = null,
-                fuelCostEuros = fuelCost,
+                energyCostEuros = energyCost,
                 level = ProfitabilityLevel.UNKNOWN
             )
         }
 
-        val net = fareEuros - fuelCost
+        val net = fareEuros - energyCost
         val hourlyRate = net / (totalDurationMinutes / 60.0)
 
         val level = when {
@@ -31,7 +36,7 @@ object ProfitabilityCalculator {
         return ProfitabilityResult(
             netEarningsEuros = net,
             hourlyRateEuros = hourlyRate,
-            fuelCostEuros = fuelCost,
+            energyCostEuros = energyCost,
             level = level
         )
     }

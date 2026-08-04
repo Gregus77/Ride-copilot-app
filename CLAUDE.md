@@ -11,16 +11,19 @@ App Android (Kotlin + Jetpack Compose) qui se superpose à Uber Driver / Bolt Dr
 | `app/src/main/java/com/ridecopilot/app/overlay/OverlayService.kt` | Service foreground, gère la bulle flottante WindowManager + orchestration (geocoding, trafic, score) |
 | `app/src/main/java/com/ridecopilot/app/overlay/ui/OverlayCard.kt` | UI Compose de la bulle/carte de score |
 | `app/src/main/java/com/ridecopilot/app/network/DirectionsApi.kt` | Appels Google Geocoding + Directions (trafic temps réel) |
-| `app/src/main/java/com/ridecopilot/app/domain/ProfitabilityCalculator.kt` | Calcul du score €/h |
-| `app/src/main/java/com/ridecopilot/app/data/SettingsRepository.kt` | Réglages persistés (clé API, coût carburant, seuils) via DataStore |
+| `app/src/main/java/com/ridecopilot/app/domain/ProfitabilityCalculator.kt` | Calcul du score €/h (thermique ou électrique selon `AppSettings.vehicleType`) |
+| `app/src/main/java/com/ridecopilot/app/data/SettingsRepository.kt` | Réglages persistés (clé API, type de véhicule, coûts, seuils) via DataStore |
 | `app/src/main/java/com/ridecopilot/app/MainActivity.kt` + `SettingsScreen.kt` | Écran unique de configuration/permissions |
 | `app/src/main/res/xml/accessibility_service_config.xml` | Packages surveillés (`com.ubercab.driver`, `ee.mtakso.driver`) |
+| `app/build.gradle.kts` | `buildConfigField GOOGLE_MAPS_API_KEY` lu depuis la variable d'env `GOOGLE_MAPS_API_KEY` (secret GitHub Actions) |
+| `.github/workflows/build-debug-apk.yml` | CI qui build l'APK debug et passe le secret `GOOGLE_MAPS_API_KEY` au build |
 
 ## Ne jamais casser
 
 - Le calcul du score de rentabilité doit toujours inclure le temps d'approche (chauffeur → point de prise en charge), pas seulement le trajet client → destination — c'est le problème central que l'app résout.
 - L'app ne doit jamais accepter/refuser une course automatiquement : elle affiche seulement une aide à la décision.
 - Le toggle "Surveillance active" (`AppSettings.monitoringEnabled`) ne doit jamais désactiver le service d'accessibilité lui-même — il court-circuite uniquement le traitement dans `RideAccessibilityService.onAccessibilityEvent`. Désactiver le service au niveau système redemande une confirmation manuelle dans les réglages Android à chaque fois, ce qui casserait l'usage du toggle.
+- La clé API saisie manuellement dans les réglages (`SettingsRepository.updateApiKey`) doit toujours prendre le dessus sur `BuildConfig.GOOGLE_MAPS_API_KEY` si elle est renseignée — ne jamais inverser cette priorité.
 
 ## Contraintes connues
 
