@@ -2,6 +2,7 @@ package com.ridecopilot.app.accessibility
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.ridecopilot.app.data.RideOfferBus
@@ -29,18 +30,25 @@ class RideAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        Log.i(TAG, "Service connecte, ecoute de $monitoredPackages")
         serviceScope.launch {
             SettingsRepository(applicationContext).settingsFlow.collect { settings ->
+                if (monitoringEnabled != settings.monitoringEnabled) {
+                    Log.i(TAG, "Toggle surveillance -> ${settings.monitoringEnabled}")
+                }
                 monitoringEnabled = settings.monitoringEnabled
             }
         }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (!monitoringEnabled) return
-
         val packageName = event?.packageName?.toString() ?: return
         if (packageName !in monitoredPackages) return
+
+        if (!monitoringEnabled) {
+            Log.d(TAG, "Evenement de $packageName ignore (surveillance desactivee)")
+            return
+        }
 
         val root = rootInActiveWindow ?: return
         val texts = mutableListOf<String>()
@@ -50,6 +58,7 @@ class RideAccessibilityService : AccessibilityService() {
         if (texts.isEmpty()) return
 
         val offer = RideOfferParser.parse(packageName, texts) ?: return
+        Log.d(TAG, "Course detectee sur $packageName : $offer")
         RideOfferBus.tryPublish(offer)
 
         startService(Intent(this, OverlayService::class.java))
@@ -71,5 +80,9 @@ class RideAccessibilityService : AccessibilityService() {
     override fun onDestroy() {
         serviceScope.cancel()
         super.onDestroy()
+    }
+
+    private companion object {
+        const val TAG = "RideCopilotA11y"
     }
 }
