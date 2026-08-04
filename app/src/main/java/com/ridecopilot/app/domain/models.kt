@@ -32,5 +32,6 @@ data class AppSettings(
     val fuelConsumptionL100km: Double = 6.5,
     val fuelPricePerLiter: Double = 1.85,
     val goodHourlyThreshold: Double = 20.0,
-    val okHourlyThreshold: Double = 12.0
+    val okHourlyThreshold: Double = 12.0,
+    val monitoringEnabled: Boolean = true
 )

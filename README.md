@@ -37,6 +37,8 @@ Lancer le module `app` sur un appareil physique (l'overlay et le service d'acces
 5. Renseigner la consommation du véhicule (L/100km) et le prix du carburant (€/L)
 6. Ouvrir Uber Driver ou Bolt Driver : la bulle apparaît automatiquement dès qu'une course est proposée
 
+Le toggle **"Surveillance active"** en haut de l'écran permet de mettre en pause la détection des courses (par exemple pendant une pause) sans avoir à retirer l'autorisation d'accessibilité dans les réglages Android — pratique car cette autorisation redemande souvent une confirmation manuelle une fois retirée.
+
 ## Limites connues (important)
 
 - **iOS non supporté.** Apple interdit à une app tierce de lire l'écran d'une autre app ou d'afficher une bulle système par-dessus — ce projet ne peut exister que sur Android.

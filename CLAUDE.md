@@ -20,6 +20,7 @@ App Android (Kotlin + Jetpack Compose) qui se superpose à Uber Driver / Bolt Dr
 
 - Le calcul du score de rentabilité doit toujours inclure le temps d'approche (chauffeur → point de prise en charge), pas seulement le trajet client → destination — c'est le problème central que l'app résout.
 - L'app ne doit jamais accepter/refuser une course automatiquement : elle affiche seulement une aide à la décision.
+- Le toggle "Surveillance active" (`AppSettings.monitoringEnabled`) ne doit jamais désactiver le service d'accessibilité lui-même — il court-circuite uniquement le traitement dans `RideAccessibilityService.onAccessibilityEvent`. Désactiver le service au niveau système redemande une confirmation manuelle dans les réglages Android à chaque fois, ce qui casserait l'usage du toggle.
 
 ## Contraintes connues
 
