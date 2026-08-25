@@ -23,7 +23,15 @@ Les apps de VTC annoncent parfois un temps optimiste (ex: 30 min) alors que le t
   - **Geocoding API**
 
 ### 2. Build via GitHub Actions (recommandé, pas besoin d'Android Studio)
-Chaque push sur `main` compile automatiquement un APK debug téléchargeable dans l'onglet **Actions** du repo (artifact `ride-copilot-debug`).
+Chaque push sur `main` compile automatiquement un APK debug.
+
+**Telechargement direct (le plus simple)** : ouvre ce lien depuis le navigateur du telephone —
+```
+https://github.com/Gregus77/Ride-copilot-app/releases/latest/download/app-debug.apk
+```
+Ca telecharge le `.apk` directement, sans zip a extraire. Une notification de telechargement apparait ensuite : tape dessus pour lancer l'installation directement.
+
+(Alternative : l'onglet **Actions** du repo propose aussi l'APK zippe en artifact `ride-copilot-debug`, mais ca demande une extraction manuelle avant installation — a eviter si possible.)
 
 Pour que la clé API Google Maps soit **injectée automatiquement** au build (pas besoin de la saisir dans l'app) :
 1. GitHub → ce repo → **Settings → Secrets and variables → Actions → New repository secret**
@@ -34,7 +42,7 @@ Pour que la clé API Google Maps soit **injectée automatiquement** au build (pa
 Ouvrir ce dossier dans Android Studio (Koala ou plus récent). Le wrapper Gradle n'est pas commité — au premier "Sync", Android Studio propose de le générer automatiquement. Sans le secret CI, définir `GOOGLE_MAPS_API_KEY` comme variable d'environnement avant de builder, sinon saisir la clé manuellement dans l'app.
 
 ### 4. Installation
-Installer l'APK sur un appareil physique (l'overlay et le service d'accessibilité ne sont pas testables sur un simple émulateur sans Play Services complets).
+Installer l'APK sur un appareil physique (l'overlay et le service d'accessibilité ne sont pas testables sur un simple émulateur sans Play Services complets). Comme l'app n'est pas publiée sur le Play Store, Android/Play Protect afficheront un avertissement "application inconnue" — c'est normal pour tout APK installé hors Play Store, il suffit de choisir "Installer quand même".
 
 ### 5. Configuration dans l'app
 1. Ouvrir Ride Copilot

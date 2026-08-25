@@ -16,7 +16,8 @@ App Android (Kotlin + Jetpack Compose) qui se superpose à Uber Driver / Bolt Dr
 | `app/src/main/java/com/ridecopilot/app/MainActivity.kt` + `SettingsScreen.kt` | Écran unique de configuration/permissions |
 | `app/src/main/res/xml/accessibility_service_config.xml` | Packages surveillés (`com.ubercab.driver`, `ee.mtakso.driver`) |
 | `app/build.gradle.kts` | `buildConfigField GOOGLE_MAPS_API_KEY` lu depuis la variable d'env `GOOGLE_MAPS_API_KEY` (secret GitHub Actions) |
-| `.github/workflows/build-debug-apk.yml` | CI qui build l'APK debug et passe le secret `GOOGLE_MAPS_API_KEY` au build |
+| `.github/workflows/build-debug-apk.yml` | CI qui build l'APK debug, passe le secret `GOOGLE_MAPS_API_KEY` au build, et publie une Release GitHub avec l'APK en telechargement direct (tag `debug-latest`, lien stable `releases/latest/download/app-debug.apk`) |
+| `app/src/main/java/com/ridecopilot/app/ui/theme/Theme.kt` + `Color.kt` | Theme Compose Material3 (vert de marque, palette clair/sombre), applique dans `MainActivity` |
 
 ## Ne jamais casser
 

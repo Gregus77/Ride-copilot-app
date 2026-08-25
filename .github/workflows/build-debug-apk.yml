@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,8 +33,16 @@ jobs:
           GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         run: gradle assembleDebug
 
-      - name: Upload APK
+      - name: Upload APK (Actions artifact, zippe)
         uses: actions/upload-artifact@v4
         with:
           name: ride-copilot-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publier une Release avec l'APK en telechargement direct
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: debug-latest
+          name: "Ride Copilot (debug)"
+          body: "APK de debug genere automatiquement a chaque push. Lien stable de telechargement direct (pas de zip) : voir les assets ci-dessous."
+          files: app/build/outputs/apk/debug/app-debug.apk

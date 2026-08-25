@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.ridecopilot.app.data.SettingsRepository
+import com.ridecopilot.app.ui.theme.RideCopilotTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -34,8 +35,8 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            MaterialTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
+            RideCopilotTheme {
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     SettingsScreen(
                         settingsRepository = settingsRepository,
                         onRequestOverlayPermission = { requestOverlayPermission() },
