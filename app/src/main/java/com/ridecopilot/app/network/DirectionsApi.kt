@@ -60,24 +60,33 @@ class DirectionsApi(private val apiKey: String) {
             var totalDurationSec = 0
             var totalDistanceMeters = 0
             var approachDurationSec: Int? = null
+            var approachDistanceMeters: Int? = null
 
             for (i in 0 until legs.length()) {
                 val leg = legs.getJSONObject(i)
                 val legDurationSec = leg.optJSONObject("duration_in_traffic")?.optInt("value")
                     ?: leg.getJSONObject("duration").getInt("value")
+                val legDistanceMeters = leg.getJSONObject("distance").getInt("value")
                 totalDurationSec += legDurationSec
-                totalDistanceMeters += leg.getJSONObject("distance").getInt("value")
+                totalDistanceMeters += legDistanceMeters
                 if (i == 0 && legs.length() > 1) {
                     approachDurationSec = legDurationSec
+                    approachDistanceMeters = legDistanceMeters
                 }
             }
 
             TrafficEstimate(
                 approachDurationMinutes = approachDurationSec?.let { it / 60.0 },
+                approachDistanceKm = approachDistanceMeters?.let { it / 1000.0 },
                 tripDurationMinutes = if (approachDurationSec != null) {
                     (totalDurationSec - approachDurationSec) / 60.0
                 } else {
                     totalDurationSec / 60.0
+                },
+                tripDistanceKm = if (approachDistanceMeters != null) {
+                    (totalDistanceMeters - approachDistanceMeters) / 1000.0
+                } else {
+                    totalDistanceMeters / 1000.0
                 },
                 totalDurationMinutes = totalDurationSec / 60.0,
                 totalDistanceKm = totalDistanceMeters / 1000.0

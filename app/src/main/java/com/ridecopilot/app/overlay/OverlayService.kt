@@ -24,7 +24,9 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.ridecopilot.app.data.LocationProvider
 import com.ridecopilot.app.data.RideOfferBus
 import com.ridecopilot.app.data.SettingsRepository
+import com.ridecopilot.app.data.WeeklyDistanceTracker
 import com.ridecopilot.app.domain.ProfitabilityCalculator
+import com.ridecopilot.app.domain.ProfitabilityLevel
 import com.ridecopilot.app.domain.RideOffer
 import com.ridecopilot.app.network.DirectionsApi
 import com.ridecopilot.app.overlay.ui.OverlayCard
@@ -150,12 +152,18 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             return
         }
 
+        val weeklyTracker = WeeklyDistanceTracker(applicationContext)
         val profitability = ProfitabilityCalculator.compute(
             fareEuros = offer.announcedFareEuros,
-            totalDurationMinutes = traffic.totalDurationMinutes,
-            totalDistanceKm = traffic.totalDistanceKm,
-            settings = settings
+            traffic = traffic,
+            settings = settings,
+            weeklyKmAlreadyDriven = weeklyTracker.getKmThisWeek()
         )
+        // Approximation : on compte le km de cette course dans le quota hebdo des
+        // qu'elle est jugee jouable (pas de detection fiable de l'acceptation reelle).
+        if (profitability.level == ProfitabilityLevel.GOOD || profitability.level == ProfitabilityLevel.OK) {
+            weeklyTracker.addKm(traffic.totalDistanceKm)
+        }
 
         uiState.value = OverlayUiState(
             loading = false,

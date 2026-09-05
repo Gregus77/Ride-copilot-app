@@ -13,11 +13,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.ridecopilot.app.data.SettingsRepository
+import com.ridecopilot.app.data.WeeklyDistanceTracker
 import com.ridecopilot.app.ui.theme.RideCopilotTheme
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var settingsRepository: SettingsRepository
+    private lateinit var weeklyDistanceTracker: WeeklyDistanceTracker
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -26,6 +28,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         settingsRepository = SettingsRepository(applicationContext)
+        weeklyDistanceTracker = WeeklyDistanceTracker(applicationContext)
 
         locationPermissionLauncher.launch(
             arrayOf(
@@ -39,6 +42,7 @@ class MainActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     SettingsScreen(
                         settingsRepository = settingsRepository,
+                        weeklyDistanceTracker = weeklyDistanceTracker,
                         onRequestOverlayPermission = { requestOverlayPermission() },
                         onRequestAccessibilityPermission = { requestAccessibilityPermission() }
                     )

@@ -144,7 +144,15 @@ fun OverlayCard(stateFlow: StateFlow<OverlayUiState>, onDismiss: () -> Unit) {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     val profit = state.profitability
-                    if (profit?.hourlyRateEuros != null) {
+                    if (profit?.hardRuleReason != null) {
+                        Text(
+                            "🚫 REFUS AUTO",
+                            color = levelColor,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        Text(profit.hardRuleReason, color = Color(0xFFB0BEC5), fontSize = 12.sp)
+                    } else if (profit?.hourlyRateEuros != null) {
                         Text(
                             "%.2f €/h".format(profit.hourlyRateEuros),
                             color = levelColor,
